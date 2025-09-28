@@ -20,15 +20,15 @@
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  // אייקון דלעת 🎃
+  // אייקון דלעת 🎃 עם פנים (pumpkin1.png)
   var pumpkinIcon = L.icon({
-    iconUrl: 'pumpkin.png',   // הקובץ צריך להיות באותה תיקייה
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
+    iconUrl: 'pumpkin1.png',  // הקובץ צריך להיות באותה תיקייה עם index.html
+    iconSize: [40, 40],       // שחקי עם זה אם גדול/קטן מדי
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -40]
   });
 
-  // קישור ל־Google Sheets כ־CSV (שימי את הקישור שלך כאן)
+  // קישור ל־Google Sheets כ־CSV
   var sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQaLyMMiBij0TIcXy0Bq7nBVlwYuS97eGNzIQHg75Xo7gO7IKi1vnjT8EWwuXNvVkz1UK3ZkM-Ebshi/pub?gid=0&single=true&output=csv";
 
   Papa.parse(sheetUrl, {
