@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="utf-8" />
+  <title>מפת בתים מארחים גבעתיים</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+  <style>
+    #map { height: 100vh; direction: rtl; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  var map = L.map('map').setView([32.072, 34.808], 14); // ברירת מחדל – גבעתיים
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  var sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQaLyMMiBij0TIcXy0Bq7nBVlwYuS97eGNzIQHg75Xo7gO7IKi1vnjT8EWwuXNvVkz1UK3ZkM-Ebshi/pub?gid=0&single=true&output=csv";
+
+  Papa.parse(sheetUrl, {
+    download: true,
+    header: true,
+    complete: function(results) {
+	  console.log(results.data);    
+      var markers = []; // נאסוף כאן את כל הסמנים
+
+      results.data.forEach(function(row) {
+        if (row["רוחב"] && row["אורך"]) {
+          var lat = parseFloat(row["רוחב"]);
+          var lng = parseFloat(row["אורך"]);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            var marker = L.marker([lat, lng])
+              .addTo(map)
+              .bindPopup(
+                "<b>" + (row["שם מלא מציג.ה"] || "") + "</b><br>" +
+                (row["כתובת"] || "") + "<br>" +
+                (row["פרטים - קומה, דירה, קוד כניסה"] || "")
+              );
+            markers.push(marker);
+          }
+        }
+      });
+
+      // אם יש נקודות – נתאים את התצוגה
+      if (markers.length > 0) {
+        var group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.2)); // pad = שוליים מסביב
+      }
+    }
+  });
+</script>
+</body>
+</html>
