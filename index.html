@@ -38,8 +38,8 @@
       var markers = [];
 
       results.data.forEach(function(row) {
-        var lat = parseFloat((row["1רוחב"] || "").trim());
-        var lng = parseFloat((row["1אורך"] || "").trim());
+        var lat = parseFloat((row["רוחב1"] || "").trim());
+        var lng = parseFloat((row["אורך1"] || "").trim());
 
         if (!isNaN(lat) && !isNaN(lng)) {
           var marker = L.marker([lat, lng], { icon: pumpkinIcon })
