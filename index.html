@@ -7,8 +7,10 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    #map { height: 100%; direction: rtl; }
+    body, html { margin: 0; padding: 0; height: 100%; font-family: "Arial", sans-serif; direction: rtl; }
+    #map { height: 100%; }
+    .popup-content { text-align: right; line-height: 1.5; }
+    .popup-content b { color: #d35400; }
   </style>
 </head>
 <body>
@@ -17,18 +19,18 @@
   // יצירת מפה ממוקמת בגבעתיים
   var map = L.map('map').setView([32.072, 34.808], 14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+    attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // אייקון דלעת 🎃 עם פנים (pumpkin1.png)
+  // אייקון דלעת 🎃
   var pumpkinIcon = L.icon({
-    iconUrl: 'pumpkin1.png',  // הקובץ צריך להיות באותה תיקייה עם index.html
-    iconSize: [40, 40],       // שחקי עם זה אם גדול/קטן מדי
+    iconUrl: 'pumpkin1.png', // הקובץ צריך להיות באותה תיקייה
+    iconSize: [40, 40],
     iconAnchor: [20, 40],
     popupAnchor: [0, -40]
   });
 
-  // קישור ל־Google Sheets כ־CSV
+  // כתובת ה־Google Sheet כ־CSV
   var sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT6Q0gCjH3psmyXUBe9EQGLNGi6MVesf8yF-4b8qwEl4y2oMmNaD3SRejk7b6f0XQFL5tE7xpiP19Ph/pub?output=csv";
 
   Papa.parse(sheetUrl, {
@@ -42,18 +44,25 @@
         var lng = parseFloat((row["אורך1"] || "").trim());
 
         if (!isNaN(lat) && !isNaN(lng)) {
+          var popupHTML = `<div class="popup-content">
+            <b>${row["שם מלא מציג.ה"] || "ללא שם"}</b><br>
+            ${row["טלפון"] ? `<a href="tel:${row["טלפון"]}">📞 ${row["טלפון"]}</a><br>` : ""}
+            ${row["כתובת"] ? `<b>כתובת:</b> ${row["כתובת"]}<br>` : ""}
+            ${row["פרטים - קומה, דירה, קוד כניסה"] ? `<b>פרטים:</b> ${row["פרטים - קומה, דירה, קוד כניסה"]}<br>` : ""}
+            ${row["שעות פעילות"] ? `<b>שעות פעילות:</b> ${row["שעות פעילות"]}<br>` : ""}
+            ${row["הערות כתובת"] ? `<b>הערות כתובת:</b> ${row["הערות כתובת"]}<br>` : ""}
+            ${row["הערות מזון"] ? `<b>הערות מזון:</b> ${row["הערות מזון"]}<br>` : ""}
+            ${row["נגישות"] ? `<b>נגישות:</b> ${row["נגישות"]}<br>` : ""}
+          </div>`;
+
           var marker = L.marker([lat, lng], { icon: pumpkinIcon })
             .addTo(map)
-            .bindPopup(
-              "<b>" + (row["שם מלא מציג.ה"] || "") + "</b><br>" +
-              (row["כתובת"] || "") + "<br>" +
-              (row["פרטים - קומה, דירה, קוד כניסה"] || "")
-            );
+            .bindPopup(popupHTML);
           markers.push(marker);
         }
       });
 
-      // אם יש נקודות → נתמקד עליהן
+      // נתמקד על כל הנקודות במפה
       if (markers.length > 0) {
         var group = L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.2));
